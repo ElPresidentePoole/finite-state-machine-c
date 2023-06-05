@@ -1,29 +1,28 @@
 #include <raylib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "fsm_state.h"
 
 int main() {
-  State* main_menu_state_ptr = malloc(sizeof(State));
-  main_menu_state_ptr->update = &s_mainmenu_update;
-  main_menu_state_ptr->render = &s_mainmenu_render;
-
-  StateMachine state_manager;
-  state_manager.curr_state = main_menu_state_ptr;
+  StateMachine* state_machine = s_statemachine_create();
 
   const int screenWidth = 800;
   const int screenHeight = 450;
-  InitWindow(screenWidth, screenHeight, "pet the friend!");
-  while (!WindowShouldClose()) {
-    state_manager.curr_state->update(&state_manager);
+  InitWindow(screenWidth, screenHeight, "finite state machine");
+  while (state_machine->game_running){
+    if(WindowShouldClose()) {
+      state_machine->game_running = false;
+      break;
+    }
+    state_machine->curr_state->update(state_machine);
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    state_manager.curr_state->render();
+    state_machine->curr_state->render();
     EndDrawing();
   }
   CloseWindow();
 
-  free(main_menu_state_ptr);
-  free(state_manager.curr_state);
+  s_statemachine_free(state_machine);
 
   return 0;
 }
